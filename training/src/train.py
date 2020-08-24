@@ -123,11 +123,13 @@ if __name__ == '__main__':
     # Upload model and results Dataframe to Storage
     subprocess.call([
         'gsutil', 'cp',
+        # Local path of the model
         os.path.join(LOCAL_PATH, 'model.joblib'),
         os.path.join(args.storage_path, 'model.joblib')
     ])
     subprocess.call([
         'gsutil', 'cp',
+        # Local path of results
         os.path.join(LOCAL_PATH, 'results.csv'),
         os.path.join(args.storage_path, 'results.csv')
     ])
