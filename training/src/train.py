@@ -11,10 +11,12 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, \
     f1_score
 import pandas as pd
 
+
 STORAGE_BUCKET = 'bank-marketing-model'
 DATA_PATH = 'bank-additional-full.csv'
 LOCAL_PATH = '/tmp'
 PROJECT_ID = 'medium-articles'
+
 
 if __name__ == '__main__':
 
@@ -42,6 +44,8 @@ if __name__ == '__main__':
                         help='Number of samples to use (as fraction of total) '
                              'for each tree in Random Forest model (float, '
                              'default 0.5)')
+    parser.add_argument('--n-jobs', type=int, default=1,
+                        help='Number of parallel jobs to run (int, default 1)')
 
     # Parse arguments
     args = parser.parse_args()
@@ -87,11 +91,13 @@ if __name__ == '__main__':
         ('model',
          RandomForestClassifier(
              random_state=1123,
+             n_jobs=args.n_jobs,
              n_estimators=args.n_estimators,
              max_depth=args.max_depth,
-             min_samples_split=args.min_samples_split,
              max_features=args.max_features if args.max_features is not
                                                   None else 'sqrt',
+             min_samples_split=args.min_samples_split,
+             class_weight='balanced',
              max_samples=args.max_samples
          ))
     ])
