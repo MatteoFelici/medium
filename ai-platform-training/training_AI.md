@@ -138,7 +138,7 @@ subprocess.call([
 ])
 ```
 
-You can find the whole code on [Github](https://github.com/MatteoFelici/medium/blob/master/training/src/train.py).
+You can find the whole code on [Github](https://github.com/MatteoFelici/medium/blob/master/ai-platform-training/src/train.py).
  
 *N.B.: at the top of the code there are a few parameters that you can tune.*
 
@@ -224,7 +224,7 @@ subprocess.call(["pip", "install", name_of_the_package])
 
 N.B. the `$JOB_NAME` in the code above is not a valid name, but it's a reference 
 to a bash variable defined before. It is very important to specify each time a 
-different job name. For example, as you can see in the [cloud_train](https://github.com/MatteoFelici/medium/blob/training/training/cloud_train.sh) 
+different job name. For example, as you can see in the [cloud_train](https://github.com/MatteoFelici/medium/blob/master/ai-platform-training/cloud_train.sh) 
 script, we can specify
 
 ```
