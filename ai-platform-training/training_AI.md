@@ -1,4 +1,4 @@
-# Google AI Platform adventures - Training a model
+# Google ML tutorials - Training a model on Google AI Platform
 Welcome to the first article in this series about doing Machine Learning stuff 
 on the Google Cloud Platform!
 
