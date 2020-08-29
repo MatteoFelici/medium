@@ -1,9 +1,9 @@
-# Google AI Platform adventures - Training
-Welcome to the first articles in this series about doing Machine Learning stuff 
+# Google AI Platform adventures - Training a model
+Welcome to the first article in this series about doing Machine Learning stuff 
 on the Google Cloud Platform!
 
-In particular, we will take a look at the [AI Platform](https://cloud.google.com/ai-platform/docs "docs").
-It is a subset of tools strictly related with Machine Learning, among which:
+We will take a look at the [AI Platform](https://cloud.google.com/ai-platform/docs "docs").
+It is a subset of tools strictly related to Machine Learning, among which:
 - AI Platform Training, for training/tuning models on the cloud
 - AI Platform Prediction, to host trained models on the cloud
 - AI Pipelines, to create a step-by-step process using Kubernetes and Docker Images
@@ -16,53 +16,50 @@ daily job.*
 
 For this first article, I'll focus on *AI Platform Training*, a product to run
 training jobs on the Cloud with custom code and customizable machines. I think 
-the main advantage using the AI Platform to train your models is that you can 
-use more powerful resources (like multiple cores or a GPU) without a lot of 
-hassle to instantiate them.
+the main advantages of using the AI Platform to train your models are:
+- you can use more powerful resources (like multiple cores or a GPU) without a lot of hassle to instantiate them
+- you can share the code with your team and reproduce the same results using a common Cloud infrastructure
 
-In this tutorial we will see how to train an end-to-end Machine Learning model
-by:
-- writing the actual Python application with the definition of the training
-- run a local test
-- run the training job on the Cloud Platform
+In this tutorial, we will write the actual **Python application** with the 
+definition of the training, run a **local test**, and execute the **training 
+job** on the Cloud Platform.
 
 For the tutorial, you will need:
-- an active Google Cloud Platform account (you can setup a new account visiting
-the [homepage](https://cloud.google.com/)) and a GCP project 
-- Python3
-- [gcloud](https://cloud.google.com/sdk/docs) and
+- an active Google Cloud Platform account (you can set up a new account visiting
+the [homepage](https://cloud.google.com/)) and a GCP *project* 
+- Python 3, [gcloud](https://cloud.google.com/sdk/docs) and
 [gsutil](https://cloud.google.com/storage/docs/gsutil_install) installed on your
  workstation
-- the [dataset used for tutorial](https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip),
+- the [dataset used for the tutorial](https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip),
 UCI's *bank marketing dataset*. [Here](https://archive.ics.uci.edu/ml/datasets/Bank+Marketing) 
-you can find the documentation about the dataset. We will use the *full* version.
+you can find the documentation about the dataset. We will use the **full** version.
 
 ## Step 1: store the data on Google Storage
-After you downloaded the dataset on your local machine, go to the Google Storage
-of your GCP project. Create a new bucket (I'll call it `telco-churn-model`) and
-load the dataset in it. The situation should look like this:
+After you downloaded the dataset on your local machine, go to the [Google Storage console](https://console.cloud.google.com/storage/)
+of your GCP project. Create a new bucket (I've called it `bank-marketing-model`) and
+load the dataset in it. Now your bucket should look like this:
 
 ![Bucket](./images/bucket.png)
 
-If you want the more geeky way, you can use the `gsutil` application from the
-command line. Then, from the command line, go into the local directory
-containing the dataset and
+Alternatively, in a more geeky way, you can use `gsutil` from the
+command line. Go into the local directory containing the dataset and run
 
-```
-# Create the bucket
+```shell script
 gsutil mb gs://bank-marketing-model
-# Upload the file
-gsutil cp bank-additional-full.csv gs://bank-marketing-model
+gsutil cp ./bank-additional-full.csv gs://bank-marketing-model
 ```
+
+- `gsutil mb` creates the bucket
+- `gsutil cp` copies a file from the local path to the GCS bucket
 
 ## Step 2: write the Python training application
 If you're reading this, chances are that you already know how to write an 
 end-to-end Python program to train a Machine Learning model. Anyway, since we're
  planning to train the model on the Cloud, there are a few steps that are 
-someway different than the usual __Kaggle-ish__ code.
+someway different than the usual *Kaggle-ish* code.
 
-First thing to bare in mind, **you can use only scikit-learn, XGBoost or 
-Tensorflow** to train your model in the "classic" Training job (there is a way 
+The first thing to bear in mind, **you can use only scikit-learn, XGBoost or 
+Tensorflow** to train your model (Pytorch is in beta, and there is a way 
 to use a custom Python environment, but we'll see it in another article).
 
 So, the basics of the Python application are:
@@ -78,7 +75,7 @@ subprocess.call([
 
 df = pd.read_csv(os.path.join(LOCAL_PATH, 'dataset.csv'), sep=';')
 ```
-- do some data preparation (split train-test, missing imputation, ...)
+- do some data preparation (split train-test, missing imputation, ...) and create the pipeline
 ```python
 train, test = train_test_split(df, test_size=args.test_size)
 
@@ -141,20 +138,22 @@ subprocess.call([
 ])
 ```
 
-You can find the whole code on [Github](): at the top of the code there are a few parameters that you can tune.
+You can find the whole code on [Github](https://github.com/MatteoFelici/medium/blob/master/training/src/train.py).
+ 
+*N.B.: at the top of the code there are a few parameters that you can tune.*
 
 ## Step 3: test the code locally
 Before submitting the training process on the Cloud Platform, it is better to 
 test the code locally. For both local and cloud training, we will use `gcloud`; 
-the command is quite similar, but there are a few differences.
+the command to run is quite similar, but there are a few differences.
 
 First, to **train the model locally with the AI Platform**, we can write a command 
 that "revert" this logic:
 `gcloud ai-platform` (with the AI Platform) `local` (locally) `train` (train 
-the model), and then we add a bunch of parameters, some specific of the training
- process, others defined in our custom Python application. 
+the model). We add a bunch of parameters, some of which are specific to the training
+ process, others are defined in our custom Python application.
 
-After you go into the main directory, with the `/src` directory, the complete 
+After you go into the main directory, with the `src` directory, the complete 
 command goes like this:
 ```shell script
 gcloud ai-platform local train \
@@ -166,13 +165,13 @@ gcloud ai-platform local train \
 ```
 
 Let's take a look at the parameters:
-- `module-name` is the name of the module to run, in the form of directory.python_file
+- `module-name` is the name of the Python module to run, in the form of directory.python_file
 - `package-path` is the path to the module directory
 - `--` tells that we start sending custom parameters
 
 Since this is a test run, we specify a low number of trees for the Random Forest.
 
-If everything runs without errors, we can switch to the actual training on the Cloud!
+Keep in mind that, even if this is a local test run, it will create all the artifacts and save them to your Storage Bucket. If everything runs without errors, we can switch to the actual training on the Cloud!
 
 ## Step 4: train on AI Platform
 Now that we have written the application and tested it, we can finally train our model on the Platform. For example, we can instantiate a multi-core machine type and parallelize the training of the Forest. 
@@ -200,18 +199,18 @@ Once again, let's take a look at the new parameters:
 - `module-name` and `package-path` are the same as before
 - `staging-bucket` points to a Google Storage bucket where to store training artifacts
 - `region` is the Google Cloud region ([here](https://cloud.google.com/compute/docs/regions-zones)
- the full list). The machines instantiated for these jobs are located all around
-  the world. With this parameter, you can specify where to instantiate the 
+ the full list). Since the machines instantiated for these jobs are located all around
+  the world, you may want to specify where to instantiate the 
   machine. If you are unsure how to set this parameter, simply set the closest 
   region from where you are!
 - `scale-tier` specify which type of machine to use for the training. This is a 
 high-level parameter, you can set it to a default configuration (like `BASIC` or
- `STANDARD_1`) or set it to `CUSTOM` and use the `master-machine-type` parameter
+ `STANDARD_1`), or set it to `CUSTOM` and use the `master-machine-type` parameter
   to use a low-level definition of the machine. In our example, we use a 
 *standard* machine with **8** cores. We can also specify *highmem* (for more 
 memory) or *highcpu* (for more virtual CPU) instead of *standard*. The full list
- of `scale-tier`s and specific machineis [here](https://cloud.google.com/ai-platform/training/docs/machine-types#compare-machine-types).
-- The `python-version` and `runtime-version` parameters specify the backbone of the packages installed on the machine. For each *runtime* ([here](https://cloud.google.com/ai-platform/training/docs/runtime-version-list) the full list) we have one or more Python versions we can use, and a list of Python packages already installed.
+ of `scale-tier`s and available machines is [here](https://cloud.google.com/ai-platform/training/docs/machine-types#compare-machine-types).
+- `python-version` and `runtime-version` parameters specify the backbone of the packages installed on the machine. For each *runtime* ([here](https://cloud.google.com/ai-platform/training/docs/runtime-version-list) the full list) we have one or more Python versions we can use, and a list of Python packages already installed.
 
 ```
 BONUS TIP: if you want to install a package that is not available in the runtime 
@@ -223,13 +222,22 @@ subprocess.call(["pip", "install", name_of_the_package])
  run 8 jobs in parallel.
 
 
-N.B. the `$JOB_NAME` in the code above is not a valid name, but it's a reference to a bash variable defined before. It is very important to specify each time a different job name. For example, as you can see in the [cloud_train]() script, we can specify `JOB_NAME=bank_marketing_$(date +%Y%m%d_%H%M%S)`, so the suffix will change every time with the actual day and time.
+N.B. the `$JOB_NAME` in the code above is not a valid name, but it's a reference 
+to a bash variable defined before. It is very important to specify each time a 
+different job name. For example, as you can see in the [cloud_train](https://github.com/MatteoFelici/medium/blob/training/training/cloud_train.sh) 
+script, we can specify
 
-If it's the first time you use this tool, it will probably asks you to enable a specific Google API (like `ml.googleapis.com`): accept to enable it and continue. If everything's ok, the command should return something like this:
+```
+JOB_NAME=bank_marketing_$(date +%Y%m%d_%H%M%S)
+```
+
+so the suffix will change every time with the actual day and time.
+
+If it's the first time you use this tool, it will probably ask you to enable a specific Google API (like `ml.googleapis.com`): accept to enable it and continue. If everything is ok, the command should return something like this
 
 ![Job OK](./images/job_ok.png)
 
-and at your [Google AI Platform Jobs console](https://console.cloud.google.com/ai-platform/jobs) you should see the new job running
+and in your [Google AI Platform Jobs console](https://console.cloud.google.com/ai-platform/jobs) you should see the new job running
 
 ![Job running](./images/job_running.png)
 
@@ -239,7 +247,7 @@ Now, you can monitor the training job in two ways:
 
 ![Job finished](./images/job_finished.png)
 
-Hooray! The job finished correctly. Let's take a look at our Storage bucket:
+Hooray! The job ended correctly. Let's take a look at our Storage bucket:
 
 ![Training bucket](./images/training_bucket.png)
 
@@ -251,6 +259,8 @@ Let's take a look at the model performances... We can download the results file,
 gsutil cat gs://your-bucket/your/path/to/results.csv
 ```
 
+to see the file directly on the command line.
+
 For my trained model, I got these results:
 
 | Measure     | Train  | Test   |
@@ -260,6 +270,9 @@ For my trained model, I got these results:
 | *Recall*    | 94.03% | 94.13% |
 | *F1*        | 52.44% | 51.22% |
 
-These are quite good results, but we can do better by **tuning hyperparameters** of the model.
+These are quite good results, but we can do better by **tuning the 
+hyperparameters** of the model. In the next article, we will see how to slightly 
+change the training application to make the AI Platform search the best 
+hyperparameters with a **Bayesian optimization process**!
 
-On the next article, we will see how to slightly change the training application to make the AI Platform search the best hyperparameters with a Bayesian optimization process!
+Thanks for reading, and I hope you will find this useful!
