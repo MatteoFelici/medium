@@ -17,8 +17,8 @@ daily job.*
 For this first article, I'll focus on *AI Platform Training*, a product to run
 training jobs on the Cloud with custom code and customizable machines. I think 
 the main advantages of using the AI Platform to train your models are:
-- you can use more powerful resources (like multiple cores or a GPU) without a lot of hassle to instantiate them
-- you can share the code with your team and reproduce the same results using a common Cloud infrastructure
+- you can use **more powerful resources** (like multiple cores or a GPU) without a lot of hassle to instantiate them
+- you can **share** the code with your team and **reproduce** the same results using a common Cloud infrastructure
 
 In this tutorial, we will write the actual **Python application** with the 
 definition of the training, run a **local test**, and execute the **training 
@@ -31,7 +31,7 @@ the [homepage](https://cloud.google.com/)) and a GCP *project*
 [gsutil](https://cloud.google.com/storage/docs/gsutil_install) installed on your
  workstation
 - the [dataset used for the tutorial](https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip),
-UCI's *bank marketing dataset*. [Here](https://archive.ics.uci.edu/ml/datasets/Bank+Marketing) 
+UCI's ***bank marketing dataset***. [Here](https://archive.ics.uci.edu/ml/datasets/Bank+Marketing) 
 you can find the documentation about the dataset. We will use the **full** version.
 
 ## Step 1: store the data on Google Storage
@@ -208,7 +208,7 @@ high-level parameter, you can set it to a default configuration (like `BASIC` or
  `STANDARD_1`), or set it to `CUSTOM` and use the `master-machine-type` parameter
   to use a low-level definition of the machine. In our example, we use a 
 *standard* machine with **8** cores. We can also specify *highmem* (for more 
-memory) or *highcpu* (for more virtual CPU) instead of *standard*. The full list
+memory) or *highcpu* (for more virtual CPU) instead of `standard`. The full list
  of `scale-tier`s and available machines is [here](https://cloud.google.com/ai-platform/training/docs/machine-types#compare-machine-types).
 - `python-version` and `runtime-version` parameters specify the backbone of the packages installed on the machine. For each *runtime* ([here](https://cloud.google.com/ai-platform/training/docs/runtime-version-list) the full list) we have one or more Python versions we can use, and a list of Python packages already installed.
 
@@ -251,7 +251,7 @@ Hooray! The job ended correctly. Let's take a look at our Storage bucket:
 
 ![Training bucket](./images/training_bucket.png)
 
-We have the `model.joblib` object, the `results.csv` file with the model performance, and a folder automatically created by the job to storage the Python application.
+We have the `model.joblib` object, the `results.csv` file with the model performance and a folder automatically created by the job to storage the Python application.
 
 Let's take a look at the model performances... We can download the results file, or type the command
 
