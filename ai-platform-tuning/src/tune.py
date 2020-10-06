@@ -35,14 +35,14 @@ if __name__ == '__main__':
     parser.add_argument('--max-depth', type=int, default=10,
                         help='Maximum depth of each tree in Random Forest model'
                              ' (integer, default 10)')
-    parser.add_argument('--min-samples_split', type=int, default=0.05,
+    parser.add_argument('--min-samples-split', type=float, default=0.05,
                         help='Minimum number of samples (as fraction of total) '
                              'to split a node of a tree (float, default 0.05)')
     parser.add_argument('--max-features', type=float, default=None,
                         help='Number of features to use (as fraction of total) '
                              'for each tree in Random Forest model (float, '
                              'default square root of number of columns)')
-    parser.add_argument('--max-samples', type=int, default=0.5,
+    parser.add_argument('--max-samples', type=float, default=0.5,
                         help='Number of samples to use (as fraction of total) '
                              'for each tree in Random Forest model (float, '
                              'default 0.5)')
@@ -124,3 +124,11 @@ if __name__ == '__main__':
         os.path.join(LOCAL_PATH, 'results.csv'),
         os.path.join(args.storage_path, 'results.csv')
     ])
+
+    # Here we pass the metric to the hypertune framework
+    hpt = hypertune.HyperTune()
+    hpt.report_hyperparameter_tuning_metric(
+        hyperparameter_metric_tag='F1',
+        metric_value=scores['test_f1'].mean(),
+        global_step=1
+    )
