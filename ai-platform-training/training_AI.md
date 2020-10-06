@@ -77,7 +77,8 @@ df = pd.read_csv(os.path.join(LOCAL_PATH, 'dataset.csv'), sep=';')
 ```
 - do some data preparation (split train-test, missing imputation, ...) and create the pipeline
 ```python
-train, test = train_test_split(df, test_size=args.test_size)
+train, test = train_test_split(df, test_size=args.test_size,
+                               random_state=42)
 
 ...
 
@@ -92,7 +93,7 @@ pipeline = Pipeline([
     # ML model
     ('model',
      RandomForestClassifier(
-         random_state=1123,
+         random_state=42,
          n_jobs=args.n_jobs,
          n_estimators=args.n_estimators,
          max_depth=args.max_depth,

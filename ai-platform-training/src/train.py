@@ -63,7 +63,8 @@ if __name__ == '__main__':
     df = pd.read_csv(os.path.join(LOCAL_PATH, 'dataset.csv'), sep=';')
     
     # Split data between train and test
-    train, test = train_test_split(df, test_size=args.test_size)
+    train, test = train_test_split(df, test_size=args.test_size,
+                                   random_state=42)
 
     y_train = train['y']
     train = train.drop('y', 1)
@@ -90,7 +91,7 @@ if __name__ == '__main__':
         # ML model
         ('model',
          RandomForestClassifier(
-             random_state=1123,
+             random_state=42,
              n_jobs=args.n_jobs,
              n_estimators=args.n_estimators,
              max_depth=args.max_depth,
