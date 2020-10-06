@@ -2,14 +2,16 @@ import argparse
 import os
 import joblib
 import subprocess
-from sklearn.model_selection import train_test_split
+import pandas as pd
+import hypertune
+
+from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
     f1_score
-import pandas as pd
 
 
 STORAGE_BUCKET = 'bank-marketing-model'
@@ -21,8 +23,8 @@ PROJECT_ID = 'medium-articles'
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--storage-path', type=str, required=True,
-                        help='Google Storage path where to store training '
+    parser.add_argument('--job-dir', type=str, required=True,
+                        help='Google Storage path where to store tuning '
                              'artifacts (string, required)')
     parser.add_argument('--test-size', type=float, default=0.2,
                         help='Percentage of data to use as test set (float, '
@@ -63,15 +65,13 @@ if __name__ == '__main__':
     df = pd.read_csv(os.path.join(LOCAL_PATH, 'dataset.csv'), sep=';')
     
     # Split data between train and test
-    train, test = train_test_split(df, test_size=args.test_size)
+    # For cross validation, we need only train set
+    train, _ = train_test_split(df, test_size=args.test_size)
 
-    y_train = train['y']
+    y_train = (train['y'] == 'yes').astype(int)
     train = train.drop('y', 1)
-    y_test = test['y']
-    test = test.drop('y', 1)
 
     # Create a scikit-learn pipeline with preprocessing steps + model
-
     # First, define numeric and categorical features to use
     num_features = ['age', 'duration', 'campaign', 'pdays', 'previous',
                     'emp.var.rate', 'cons.price.idx', 'cons.conf.idx',
@@ -102,37 +102,22 @@ if __name__ == '__main__':
          ))
     ])
 
-    # Train the model
-    pipeline.fit(train, y_train)
+    # We use a 5-fold cross validation
+    scores = cross_validate(pipeline, train, y_train,
+                            scoring=['accuracy', 'precision', 'recall', 'f1'],
+                            cv=5,
+                            return_train_score=True)
 
-    # Save model
-    joblib.dump(pipeline, os.path.join(LOCAL_PATH, 'model.joblib'))
+    # Drop fit and score time
+    _ = scores.pop('fit_time')
+    _ = scores.pop('score_time')
 
-    # Get predictions
-    pred_train = pipeline.predict(train)
-    pred_test = pipeline.predict(test)
-
-    # Calculate a bunch of performance metrics
-    results = pd.DataFrame(
-        {'accuracy': [accuracy_score(y_train, pred_train),
-                      accuracy_score(y_test, pred_test)],
-         'precision': [precision_score(y_train, pred_train, pos_label='yes'),
-                       precision_score(y_test, pred_test, pos_label='yes')],
-         'recall': [recall_score(y_train, pred_train, pos_label='yes'),
-                    recall_score(y_test, pred_test, pos_label='yes')],
-         'f1': [f1_score(y_train, pred_train, pos_label='yes'),
-                f1_score(y_test, pred_test, pos_label='yes')]},
-        index=['train', 'test']
-    )
+    # Save metrics
+    results = pd.DataFrame(scores)
+    results.loc['avg'] = results.mean()
     results.to_csv(os.path.join(LOCAL_PATH, 'results.csv'))
 
-    # Upload model and results Dataframe to Storage
-    subprocess.call([
-        'gsutil', 'cp',
-        # Local path of the model
-        os.path.join(LOCAL_PATH, 'model.joblib'),
-        os.path.join(args.storage_path, 'model.joblib')
-    ])
+    # Upload results Dataframe to Storage
     subprocess.call([
         'gsutil', 'cp',
         # Local path of results
