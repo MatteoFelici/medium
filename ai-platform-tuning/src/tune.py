@@ -13,15 +13,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
     f1_score
 
-
 STORAGE_BUCKET = 'bank-marketing-model'
 DATA_PATH = 'bank-additional-full.csv'
 LOCAL_PATH = '/tmp'
 PROJECT_ID = 'medium-articles'
 
-
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--job-dir', type=str, required=True,
                         help='Google Storage path where to store tuning '
@@ -60,10 +57,10 @@ if __name__ == '__main__':
         # Local path
         os.path.join(LOCAL_PATH, 'dataset.csv')
     ])
-    
+
     # Read data with pandas - separator is ';'
     df = pd.read_csv(os.path.join(LOCAL_PATH, 'dataset.csv'), sep=';')
-    
+
     # Split data between train and test
     # For cross validation, we need only train set
     train, _ = train_test_split(df, test_size=args.test_size)
@@ -84,8 +81,8 @@ if __name__ == '__main__':
         # categorical and numerical data
         ('data_prep',
          ColumnTransformer([
-            ('num_prep', StandardScaler(), num_features),
-            ('cat_prep', OneHotEncoder(), cat_features)
+             ('num_prep', StandardScaler(), num_features),
+             ('cat_prep', OneHotEncoder(), cat_features)
          ])),
         # ML model
         ('model',
@@ -94,8 +91,10 @@ if __name__ == '__main__':
              n_jobs=args.n_jobs,
              n_estimators=args.n_estimators,
              max_depth=args.max_depth,
-             max_features=args.max_features if args.max_features is not
-                                                  None else 'sqrt',
+             max_features=(float(args.max_features)
+                           if args.max_features is not None
+                              or args.max_features == 'sqrt'
+                           else 'sqrt'),
              min_samples_split=args.min_samples_split,
              class_weight='balanced',
              max_samples=args.max_samples
