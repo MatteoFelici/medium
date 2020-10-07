@@ -65,9 +65,9 @@ if __name__ == '__main__':
     # Split data between train and test
     train, test = train_test_split(df, test_size=args.test_size)
 
-    y_train = train['y']
+    y_train = (train['y'] == 'yes').astype(int)
     train = train.drop('y', 1)
-    y_test = test['y']
+    y_test = (test['y'] == 'yes').astype(int)
     test = test.drop('y', 1)
 
     # Create a scikit-learn pipeline with preprocessing steps + model
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         ('data_prep',
          ColumnTransformer([
             ('num_prep', StandardScaler(), num_features),
-            ('cat_prep', OneHotEncoder(), cat_features)
+            ('cat_prep', OneHotEncoder(handle_unknown='ignore'), cat_features)
          ])),
         # ML model
         ('model',
