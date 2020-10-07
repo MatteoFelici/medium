@@ -3,7 +3,7 @@ trainingInput:
   masterType: n1-highmem-8
   hyperparameters:
     goal: MAXIMIZE
-    maxTrials: 20
+    maxTrials: 10
     maxParallelTrials: 2
     hyperparameterMetricTag: F1
     params:
@@ -18,10 +18,12 @@ trainingInput:
       maxValue: 0.1
       scaleType: UNIT_LOG_SCALE
     - parameterName: max-features
-      type: CATEGORICAL
-      categoricalValues: ['sqrt', '0.25', '0.5', '0.75']
+      type: DOUBLE
+      minValue: 0.1
+      maxValue: 0.9
+      scaleType: UNIT_LINEAR_SCALE
     - parameterName: max-samples
       type: DOUBLE
       minValue: 0.1
-      maxValue: 1.0
+      maxValue: 0.9
       scaleType: UNIT_LINEAR_SCALE

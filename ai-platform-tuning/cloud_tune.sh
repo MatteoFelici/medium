@@ -10,5 +10,4 @@ gcloud ai-platform jobs submit training "$JOB_NAME" \
     --runtime-version=2.1 \
     --config=./config.yaml \
     -- \
-    --n-estimators=500 \
     --n-jobs=8

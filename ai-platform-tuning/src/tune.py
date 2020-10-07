@@ -19,16 +19,22 @@ LOCAL_PATH = '/tmp'
 PROJECT_ID = 'medium-articles'
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
+
+    # Job related arguments
     parser.add_argument('--job-dir', type=str, required=True,
                         help='Google Storage path where to store tuning '
                              'artifacts (string, required)')
+    parser.add_argument('--n-jobs', type=int, default=1,
+                        help='Number of parallel jobs to run (int, default 1)')
+
+    # Train related arguments
     parser.add_argument('--test-size', type=float, default=0.2,
                         help='Percentage of data to use as test set (float, '
                              'default 0.2)')
-    parser.add_argument('--n-estimators', type=int, default=100,
-                        help='Number of trees in Random Forest model '
-                             '(integer, default 100)')
+
+    # Hyperparameters to tune
     parser.add_argument('--max-depth', type=int, default=10,
                         help='Maximum depth of each tree in Random Forest model'
                              ' (integer, default 10)')
@@ -43,8 +49,6 @@ if __name__ == '__main__':
                         help='Number of samples to use (as fraction of total) '
                              'for each tree in Random Forest model (float, '
                              'default 0.5)')
-    parser.add_argument('--n-jobs', type=int, default=1,
-                        help='Number of parallel jobs to run (int, default 1)')
 
     # Parse arguments
     args = parser.parse_args()
@@ -82,19 +86,16 @@ if __name__ == '__main__':
         ('data_prep',
          ColumnTransformer([
              ('num_prep', StandardScaler(), num_features),
-             ('cat_prep', OneHotEncoder(), cat_features)
+             ('cat_prep', OneHotEncoder(handle_unknown='ignore'), cat_features)
          ])),
         # ML model
         ('model',
          RandomForestClassifier(
              random_state=1123,
              n_jobs=args.n_jobs,
-             n_estimators=args.n_estimators,
+             n_estimators=500,
              max_depth=args.max_depth,
-             max_features=(float(args.max_features)
-                           if args.max_features is not None
-                              or args.max_features == 'sqrt'
-                           else 'sqrt'),
+             max_features=args.max_features,
              min_samples_split=args.min_samples_split,
              class_weight='balanced',
              max_samples=args.max_samples
@@ -107,10 +108,6 @@ if __name__ == '__main__':
                             cv=5,
                             return_train_score=True)
 
-    # Drop fit and score time
-    _ = scores.pop('fit_time')
-    _ = scores.pop('score_time')
-
     # Save metrics
     results = pd.DataFrame(scores)
     results.loc['avg'] = results.mean()
@@ -121,13 +118,18 @@ if __name__ == '__main__':
         'gsutil', 'cp',
         # Local path of results
         os.path.join(LOCAL_PATH, 'results.csv'),
-        os.path.join(args.storage_path, 'results.csv')
+        os.path.join(args.job_dir, 'results.csv')
     ])
 
     # Here we pass the metric to the hypertune framework
+
+    # Instantiate a hypertune object
     hpt = hypertune.HyperTune()
+    # Compute the average metric
+    avg_f1 = scores['test_f1'].mean()
+    # Pass the value to hyperopt
     hpt.report_hyperparameter_tuning_metric(
         hyperparameter_metric_tag='F1',
-        metric_value=scores['test_f1'].mean(),
+        metric_value=avg_f1,
         global_step=1
     )
