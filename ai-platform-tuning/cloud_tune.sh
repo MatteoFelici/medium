@@ -6,6 +6,8 @@ gcloud ai-platform jobs submit training "$JOB_NAME" \
     --package-path=./src \
     --job-dir=gs://bank-marketing-model/"$JOB_NAME" \
     --region=$REGION \
+    --scale-tier=CUSTOM \
+    --master-machine-type=n1-standard-8 \
     --python-version=3.7 \
     --runtime-version=2.1 \
     --config=./config.yaml \
