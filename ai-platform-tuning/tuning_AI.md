@@ -47,9 +47,12 @@ sets of hyperparameters. At each trial, it gains more information (in Bayes
 fashion) about the real distribution of the objective function, so it can move 
 to a more "promising" subset of the domain space.
 
-For this specific reason, keep in mind that we cannot fully parallelize the process of the Bayesian Optimization (as opposed to Grid and Random Search), since each iteration learns from the previous one.
+For this specific reason, keep in mind that we cannot fully parallelize the 
+process of the Bayesian Optimization (as opposed to Grid and Random Search), 
+since each iteration learns from the previous one.
 
-Now let's train some models! For the tutorial, we will follow the same steps of the [training tutorial][Training article]:
+Now let's train some models! For the tutorial, we will follow the same steps of 
+the [training tutorial][Training article]:
 - store the data on Google Storage
 - write a Python application to train the model
 - launch a training job on AI Platform
@@ -60,7 +63,8 @@ This framework is called [Hypertune](https://github.com/GoogleCloudPlatform/clou
 you can install it simply with `pip install cloudml-hypertune`.
 
 ## Changing the Python application
-The first thing to do is to define the list of hyperparameters we want to tune. We have to train a pipeline like this
+The first thing to do is to define the list of hyperparameters we want to tune. 
+We have to train a pipeline like this
 
 ```python
 pipeline = Pipeline([
@@ -78,8 +82,7 @@ pipeline = Pipeline([
      ))
 ])
 ```
-
-And maybe we want to tune some hyperparameters of the 
+ 
 To pass these hyperparameters to the application (and to the pipeline), we have to define a list of arguments with the `argparse` library, like this
 
 ```python
@@ -125,18 +128,21 @@ pipeline = Pipeline([
 ])
 ```
 
-After that, we need a strategy to assess the performance for each set of given hyperparameters. 
+After that, we need a strategy to assess the performance for each set of given 
+hyperparameters. 
 We use the **cross-validation** methodology:
 1. you divide your data into *n* splits
 2. choose one split as *validation*
-3. concatenate the remaining *n-1* splits and train the model on this new dataset
+3. concatenate the remaining *n-1* splits and train the model on this new 
+dataset
 4. calculate the performance on the hold-out split
 5. repeat 2-4 on each split
 
-This method is suitable if you want to robustly assess one single model, because you train and validate it on *n* potentially different scenarios.
+This method is suitable if you want to robustly assess a model, because you 
+train and validate it on *n* potentially different scenarios.
 
-We can use the pre-built `cross_validate` [function](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate)
- from scikit-learn.
+We can use the pre-built `cross_validate` [function](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate) 
+from scikit-learn.
 
 ```python
 from sklearn.model_selection import cross_validate
@@ -149,7 +155,8 @@ scores = cross_validate(pipeline, train, y_train,
 ```
 
 We provide:
-- a valid classifier (we can use a model like `RandomForestClassifier`, in our case the above-defined pipeline)
+- a valid classifier (we can use a model like `GradientBoostingClassifier`, or 
+a whole pipeline like in our case)
 - input data and target
 - one or more metrics to calculate (like accuracy and precision) - [here](https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter)
  the full list of available metrics
@@ -238,11 +245,11 @@ Let's take a look at this file.
 `MAXIMIZE` a metric with the tag `F1`. Keep in mind that this tag should be the 
 same given into the `hpt.report_hyperparameter_tuning_metric` in the Python app.
 - Then, we define the trials (rounds) that the tuning job has to take. We say 
-"20 trials in total, 2 parallel at each time". Here there is a tradeoff between 
+"20 trials in total, 2 parallel at each time". There is a tradeoff between 
 time and performance: the more parallel jobs we specify, the less time it takes. 
 But keep in mind that the Bayesian process learns from previous steps: the 
 learning steps are `total trials / number of parallel trials` (in our case, 10), 
-so if we parallelize "too much" it will have few stesp to learn.
+so if we parallelize "too much" the process will have few steps to learn.
 - Finally, we list the hyperparameters, one by one, with the abovementioned 
 features. Again, keep in mind that the `parameterName` has to be the same 
 defined in the `argparse` section of the Python application. [Here](https://cloud.google.com/ai-platform/training/docs/reference/rest/v1/projects.jobs#ParameterSpec)
@@ -286,16 +293,24 @@ hyperparameters are quite settled, with a best performing value of 20 and 0.001
 respectively. The other two hyperparameters are not fixed yet, but we can see a 
 trend towards the higher half of the interval.
 
-Moreover, if we calculate the correlation between the number of the trial and 
-the "arrival" order, we spot a -0.71 correlation. This means that a higher trial 
-number (so a trial with more "learning" process) has a lower arrival spot.
+To prove the fact that the process has learned in time, we calculate the 
+correlation between the number of the trial and the "arrival" order. We spot a 
+-0.71 correlation! This means that a higher trial number (so a trial with more 
+"learning" process) has a lower arrival spot.
 
-When we [trained](Training article) the same model on the same data but with default hyperparameters, we reached a 52.44% F1 on train and a 51.22% F1 on test. Now, with cross-validation + Bayesian Optimization, we reached 64.46%! The next steps could be:
-- run another tune job, fixing max-depth and min-samples-split and focusing on the other hyperparameters
+When we [trained](Training article) the same model on the same data but with 
+default hyperparameters, we reached a 52.44% F1 on train and a 51.22% F1 on 
+test. Now, with cross-validation + Bayesian Optimization, we reached 64.46%! The 
+next steps could be:
+- run another tune job, fixing max-depth and min-samples-split and focusing on 
+the other hyperparameters
 - tune other hyperparameters, like `criterion` or `min_impurity_split`
-- run a training job, using the best found set of hyperparameters, in order to have a model to deploy
+- run a training job, using the best found set of hyperparameters, in order to 
+have a model to deploy
 
-Thanks again for reading this article! I really hope you can manage to use this powerful tool to enhance your Machine Learning models. Please leave a comment with your experience or a feedback!
+Thanks again for reading this article! I really hope you can manage to use this 
+powerful tool to enhance your Machine Learning models. Please leave a comment 
+with your experience or a feedback!
    
 
 [ML tutorials series]: https://towardsdatascience.com/tagged/google-ml-tutorials
