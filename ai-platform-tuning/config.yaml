@@ -1,0 +1,27 @@
+trainingInput:
+  hyperparameters:
+    goal: MAXIMIZE
+    hyperparameterMetricTag: F1
+    maxTrials: 20
+    maxParallelTrials: 2
+    params:
+    - parameterName: max-depth
+      type: INTEGER
+      minValue: 4
+      maxValue: 20
+      scaleType: UNIT_LINEAR_SCALE
+    - parameterName: min-samples-split
+      type: DOUBLE
+      minValue: 0.001
+      maxValue: 0.1
+      scaleType: UNIT_LOG_SCALE
+    - parameterName: max-features
+      type: DOUBLE
+      minValue: 0.1
+      maxValue: 0.9
+      scaleType: UNIT_LINEAR_SCALE
+    - parameterName: max-samples
+      type: DOUBLE
+      minValue: 0.1
+      maxValue: 0.9
+      scaleType: UNIT_LINEAR_SCALE
