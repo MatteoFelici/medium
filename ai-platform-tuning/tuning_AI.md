@@ -1,14 +1,14 @@
-# Google ML tutorials - Tuning a model with Bayesian Optimization on AI Platform
-On this article of the [Google ML tutorials][ML tutorials series]
+# Google ML tutorials - Tuning a model with Bayesian Optimization on Google AI Platform
+In this article of the [Google ML tutorials][ML tutorials series]
 series, we will talk about how to use the [AI Platform](https://cloud.google.com/ai-platform)
 built-in tool to tune the hyperparameters of your Machine Learning model! We
-will use a method called Bayesian Optimization to navigate the hyperparameters 
-space and then find a set better than default.
+will use a method called **Bayesian Optimization** to navigate the hyperparameters 
+space and then find a set better than the default.
 
 In the last [article][Training article], we trained a `RandomForestClassifier` 
 on a [bank marketing dataset](https://archive.ics.uci.edu/ml/datasets/Bank+Marketing). 
 We used the default hyperparameters of the algorithm, reaching quite good 
-results. What if I want to tune this model, trying to find a better set of 
+results. But what if I want to tune this model, trying to find a better set of 
 hyperparameters? For example, I would like to tune: 
 - `max_depth`: the maximum depth of each tree of the forest
 - `min_samples_split`: the minimum number (or fraction) of samples to split a 
@@ -20,21 +20,22 @@ training of each tree
 The most common ways of searching for the best hyperparameters are the **Grid 
 Search** and the **Random Search** methods.
 
-- In the Grid Search, the algorithm train a model for every single combination 
+- In the Grid Search, the algorithm trains a model for every single combination 
 of the given hyperparameters and then returns the set with the best performance. 
 This method is really time-consuming, especially when you want to tune more than 
-2-3 hyperparameters at once, because the number of models to train grows 
+2-3 hyperparameters at once because the number of models to train grows 
 exponentially.
 - In the Random Search, the algorithm instead picks at random *n* combinations 
 of hyperparameters and train a model for each of them. Here the problem is in 
 the *random* word: the algorithm may skip the most effective sets of 
 hyperparameters, especially when we set a low *n*.
 
-In this tutiroal, we will use the Bayesian Optimization method with a little 
-help from Google AI Platform! But first, what is Bayesian Optimization? Even if 
-on this article we will focus more on the code part than on the theory behind 
+In this tutorial, we will use the Bayesian Optimization method with a little 
+help from Google AI Platform! But first, what is Bayesian Optimization?
+
+Even if on this article we will focus more on the code part than on the theory behind 
 the method, I'll try to give a quick overview. For a more robust and complete 
-introduction, I suggest you to take a look at these articles ([1](https://towardsdatascience.com/a-conceptual-explanation-of-bayesian-model-based-hyperparameter-optimization-for-machine-learning-b8172278050f)
+introduction, I suggest taking a look at these articles ([1](https://towardsdatascience.com/a-conceptual-explanation-of-bayesian-model-based-hyperparameter-optimization-for-machine-learning-b8172278050f)
 and [2](https://cloud.google.com/blog/products/gcp/hyperparameter-tuning-cloud-machine-learning-engine-using-bayesian-optimization)).
 
 In a certain way, the Bayesian Optimization takes the good from both above 
@@ -166,7 +167,7 @@ The `scores` result is a dictionary with an entry for each given metric. For exa
 `scores['test_accuracy']` will be a vector with the 5 calculated accuracies on the 5 iterations.
 
 Finally, we have to use the `hyperopt` framework. Since the whole optimization is 
-based on a single value, we have choose one particular metric (*F1-score*) and 
+based on a single value, we have to choose one particular metric (*F1-score*) and 
 compute the average value.
 
 ```python
@@ -184,7 +185,7 @@ hpt.report_hyperparameter_tuning_metric(
 )
 ``` 
 
-And that's it for the Python application! You can find the whole application on my [Github repo](https://github.com/MatteoFelici/medium/blob/master/ai-platform-tuning/src/tune.py)
+And that's it for the Python application! You can find the whole application on my [Github repo](https://github.com/MatteoFelici/medium/blob/master/ai-platform-tuning/src/tune.py).
 
 But hey! We have defined the hyperparameters to tune, but not which values (or 
 range of values) the application has to try with the Bayesian Optimization. How 
@@ -243,7 +244,7 @@ trainingInput:
 Let's take a look at this file.
 - At the top, we identify which is the `goal` of the tuning job. We want to 
 `MAXIMIZE` a metric with the tag `F1`. Keep in mind that this tag should be the 
-same given into the `hpt.report_hyperparameter_tuning_metric` in the Python app.
+same given to the `hpt.report_hyperparameter_tuning_metric` in the Python app.
 - Then, we define the trials (rounds) that the tuning job has to take. We say 
 "20 trials in total, 2 parallel at each time". There is a tradeoff between 
 time and performance: the more parallel jobs we specify, the less time it takes. 
@@ -289,7 +290,7 @@ summary of the trials results, ordered from the best to the worst.
 ![Job results](./images/job_results.png)
 
 In this example, we can see that the **max-depth** and the **min-samples-split** 
-hyperparameters are quite settled, with a best performing value of 20 and 0.001 
+hyperparameters are quite settled, with the best performing value of 20 and 0.001 
 respectively. The other two hyperparameters are not fixed yet, but we can see a 
 trend towards the higher half of the interval.
 
@@ -305,12 +306,12 @@ next steps could be:
 - run another tune job, fixing max-depth and min-samples-split and focusing on 
 the other hyperparameters
 - tune other hyperparameters, like `criterion` or `min_impurity_split`
-- run a training job, using the best found set of hyperparameters, in order to 
-have a model to deploy
+- run a training job, using the best found set of hyperparameters, to have a 
+model to deploy
 
 Thanks again for reading this article! I really hope you can manage to use this 
 powerful tool to enhance your Machine Learning models. Please leave a comment 
-with your experience or a feedback!
+with your experience or feedback!
    
 
 [ML tutorials series]: https://towardsdatascience.com/tagged/google-ml-tutorials
