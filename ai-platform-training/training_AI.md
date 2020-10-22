@@ -271,8 +271,9 @@ For my trained model, I got these results:
 | *Recall*    | 94.03% | 94.13% |
 | *F1*        | 52.44% | 51.22% |
 
-These are quite good results, but we can do better by **tuning the 
-hyperparameters** of the model. In the next article, we will see how to slightly 
+These are quite good results, but we can do better by [**tuning the 
+hyperparameters**](https://towardsdatascience.com/tuning-a-model-with-bayesian-optimization-on-google-ai-platform-d9fe63b78576)
+of the model. In the next article, we will see how to slightly 
 change the training application to make the AI Platform search the best 
 hyperparameters with a **Bayesian optimization process**!
 
