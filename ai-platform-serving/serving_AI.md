@@ -28,7 +28,12 @@ Keep in mind that the model object must have one of these names:
 
 
 ## Step 2: test the prediction locally
+As for training a model, we can locally test our prediction service before the actual deploy. For this, we need a json file with the input data to use to query the model. The format of the file is quite particular, and it goes like this:
 
+```json
+[56, "housemaid", "married", "basic.4y", "no", "no", "no", "telephone", "may", "mon", 261, 1, 999, 0, "nonexistent", 1.1, 93.994, -36.4, 4.857, 5191, "no"]
+[57, "services", "married", "high.school", "unknown", "no", "no", "telephone", "may", "mon", 149, 1, 999, 0, "nonexistent", 1.1, 93.994, -36.4, 4.857, 5191, "no"]
+```
 
 
 ## Step 3: deploy the model on AI Platform
