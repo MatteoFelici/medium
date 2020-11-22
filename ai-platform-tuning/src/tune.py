@@ -74,11 +74,8 @@ if __name__ == '__main__':
 
     # Create a scikit-learn pipeline with preprocessing steps + model
     # First, define numeric and categorical features to use
-    num_features = ['age', 'duration', 'campaign', 'pdays', 'previous',
-                    'emp.var.rate', 'cons.price.idx', 'cons.conf.idx',
-                    'euribor3m', 'nr.employed']
-    cat_features = ['job', 'marital', 'education', 'default', 'housing', 'loan',
-                    'contact', 'month', 'day_of_week', 'poutcome']
+    num_features = [0, 10, 11, 12, 13, 15, 16, 17, 18, 19]
+    cat_features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 14]
 
     pipeline = Pipeline([
         # The ColumnTransformer divide the preprocessing process between
