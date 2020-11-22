@@ -189,7 +189,7 @@ gcloud ai-platform jobs submit training $JOB_NAME \
     --scale-tier=CUSTOM \
     --master-machine-type=n1-standard-8 \
     --python-version=3.7 \
-    --runtime-version=2.1 \
+    --runtime-version=2.2 \
     -- \
     --storage-path=gs://bank-marketing-model/$JOB_NAME \
     --n-estimators=500 \
@@ -266,10 +266,10 @@ For my trained model, I got these results:
 
 | Measure     | Train  | Test   |
 | ----------- | ------ | ------ |
-| *Accuracy*  | 80.65% | 80.35% |
-| *Precision* | 36.35% | 35.18% |
-| *Recall*    | 94.03% | 94.13% |
-| *F1*        | 52.44% | 51.22% |
+| *Accuracy*  | 81.53% | 81.01% |
+| *Precision* | 37.00% | 36.40% |
+| *Recall*    | 91.42% | 90.05% |
+| *F1*        | 52.68% | 51.85% |
 
 These are quite good results, but we can do better by [**tuning the 
 hyperparameters**](https://towardsdatascience.com/tuning-a-model-with-bayesian-optimization-on-google-ai-platform-d9fe63b78576)

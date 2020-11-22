@@ -270,7 +270,7 @@ gcloud ai-platform jobs submit training "$JOB_NAME" \
     --scale-tier=CUSTOM \
     --master-machine-type=n1-standard-8 \
     --python-version=3.7 \
-    --runtime-version=2.1 \
+    --runtime-version=2.2 \
     --config=./config.yaml \
     -- \
     --n-jobs=8
