@@ -86,6 +86,62 @@ gcloud ai-platform models list \
     --region your-region
 ```
 
+Now the second step: let's create the first version of our model!
+
+```shell script
+gcloud ai-platform versions create your_version_name \
+    --model=your_model_name \
+    --origin=gs://your-bucket/path-to/model-directory \
+    --region=your_region \
+    --framework=scikit-learn \
+    --python-version=3.7 \
+    --runtime-version=2.2 \
+    --machine-type=n1-standard-4
+```
+
+- As for the model name, also the *version name* should contain only letters, numbers and underscores
+- The `origin` parameter is the same GCS path used in the local testing
+- Use the same `python-version` and `runtime-version` specified for your cloud training job.
+- The [list](https://cloud.google.com/ai-platform/prediction/docs/machine-types-online-prediction) of `machine-type` offered provides a wide range of choices.
+  To make the right call, you have to understand if you need a GPU, how big is your model artifact, and how many prediction requests you expect your model will receive.
+  I pick one of the simpliest machine types, with 4 nodes.
+  
+As before, you can check that your version is online with
+
+```shell script
+gcloud ai-platform versions list \
+    --model your_model_name \
+    --region your_region
+```
+
+
+## Step 4: actually use the model!
+Now we can finally query our model with new data and receive our well deserved predictions!
+
+#### Do it with gcloud
+With the `gcloud` command it's super easy! Just run
+
+```shell script
+gcloud ai-platform predict \
+    --model your_model_name \
+    --version your_version_name \
+    --region your_region \
+    --json-instances ./your-input-file.json
+```
+
+The json input file should have the same structure of the one used for the local training.
+For example, using the 2 records above I get
+
+```shell script
+[0, 0]
+``` 
+
+
+#### Do it with Python
+We can also use the `google-api-python-client` [library](https://pypi.org/project/google-api-python-client/) to include the model serving in a Python application.
+
+
+
 
 
 
