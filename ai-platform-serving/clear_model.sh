@@ -5,8 +5,8 @@ REGION=europe-west1
 
 
 gcloud ai-platform versions delete "$VERSION_NAME" \
-  --model="$MODEL_NAME" \
-  --region="$REGION"
+  --model "$MODEL_NAME" \
+  --region "$REGION"
 
-gcloud ai-platform model "$MODEL_NAME" \
-  --region="$REGION"
+gcloud ai-platform models delete "$MODEL_NAME" \
+  --region "$REGION"

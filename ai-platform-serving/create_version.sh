@@ -5,10 +5,10 @@ REGION=europe-west1
 
 
 gcloud ai-platform versions create "$VERSION_NAME" \
-  --model="$MODEL_NAME" \
-  --origin="$MODEL_DIR" \
-  --region="$REGION" \
-  --framework=scikit-learn \
-  --python-version=3.7 \
-  --runtime-version=2.2 \
-  --machine-type=n1-standard-4
+  --model "$MODEL_NAME" \
+  --origin "$MODEL_DIR" \
+  --region "$REGION" \
+  --framework scikit-learn \
+  --python-version 3.7 \
+  --runtime-version 2.2 \
+  --machine-type n1-standard-4
