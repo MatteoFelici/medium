@@ -6,7 +6,7 @@ We will use the [Google AI Platform Prediction service](https://cloud.google.com
 For this tutorial, you will need:
 - an active Google Cloud Platform account (you can set up a new account visiting
 the [homepage](https://cloud.google.com/)) and a GCP *project* 
-- Python 3, [gcloud](https://cloud.google.com/sdk/docs) and
+- [gcloud](https://cloud.google.com/sdk/docs) and
 [gsutil](https://cloud.google.com/storage/docs/gsutil_install) installed on your
  workstation
 - a trained model that you want to deploy.
@@ -55,11 +55,13 @@ gcloud ai-platform local predict \
   It can be scikit-learn, tensorflow or xgboost.
 
 Keep in mind that right now we're using our own laptop to run this prediction job, so this job depends on your current Python environment.
-To avoid dependencies or version issues, it is better to create an environment (like with `conda` or `virtualenv`) with the same libraries as the [runtime version](https://cloud.google.com/ai-platform/training/docs/runtime-version-list) used to train the model.
+To avoid dependencies or version issues, it is better to create an environment using `conda` or `virtualenv` with the same libraries as the [runtime version](https://cloud.google.com/ai-platform/training/docs/runtime-version-list) used to train the model.
 
 ## Step 3: deploy the model on AI Platform
 If the last step succeded, we can now create a new **model** on the AI Platform!
-You can take a look at the [specific section](https://console.cloud.google.com/ai-platform/models) on the Platform, but if this is your first time, it should be empty... 
+You can take a look at the [specific section](https://console.cloud.google.com/ai-platform/models) on the Platform, but if this is your first time, it should be empty...
+
+![No model](./images/no_model.png)
 
 To deploy our pipeline, we have to follow two steps:
 - first, we create a **model** instance
@@ -86,26 +88,27 @@ gcloud ai-platform models list \
     --region your-region
 ```
 
-Now the second step: let's create the first version of our model!
+Now the second step: create the first version of our model.
 
 ```shell script
 gcloud ai-platform versions create your_version_name \
-    --model=your_model_name \
-    --origin=gs://your-bucket/path-to/model-directory \
-    --region=your_region \
-    --framework=scikit-learn \
-    --python-version=3.7 \
-    --runtime-version=2.2 \
-    --machine-type=n1-standard-4
+    --model your_model_name \
+    --origin gs://your-bucket/path-to/model-directory \
+    --region your_region \
+    --framework scikit-learn \
+    --python-version 3.7 \
+    --runtime-version 2.2 \
+    --machine-type n1-standard-4
 ```
 
-- As for the model name, also the *version name* should contain only letters, numbers and underscores
+- As for the model name, the *version name* should contain only letters, numbers and underscores
 - The `origin` parameter is the same GCS path used in the local testing
-- Use the same `python-version` and `runtime-version` specified for your cloud training job.
+- Use the same `python-version` and `runtime-version` specified for your cloud training job. If you did not use a training job to create your model, choose the runtime version with the same package versions you used.
 - The [list](https://cloud.google.com/ai-platform/prediction/docs/machine-types-online-prediction) of `machine-type` offered provides a wide range of choices.
   To make the right call, you have to understand if you need a GPU, how big is your model artifact, and how many prediction requests you expect your model will receive.
   I pick one of the simpliest machine types, with 4 nodes.
   
+This could take a while, so don't worry if you have to wait a few minutes...
 As before, you can check that your version is online with
 
 ```shell script
@@ -116,10 +119,7 @@ gcloud ai-platform versions list \
 
 
 ## Step 4: actually use the model!
-Now we can finally query our model with new data and receive our well deserved predictions!
-
-#### Do it with gcloud
-With the `gcloud` command it's super easy! Just run
+Now we can finally query our model with new data and receive our well deserved predictions. With the `gcloud` command it's super easy! Just run
 
 ```shell script
 gcloud ai-platform predict \
@@ -136,13 +136,23 @@ For example, using the 2 records above I get
 [0, 0]
 ``` 
 
+And that's it!
 
-#### Do it with Python
-We can also use the `google-api-python-client` [library](https://pypi.org/project/google-api-python-client/) to include the model serving in a Python application.
+## Step 5: clear the model
+You should not follow this step if your model has to remain online, but for the purpose of learning and testing you should delete both model and version to not incur into unwanted costs (speaking from experience...).
 
+Run both
 
+```shell script
+gcloud ai-platform versions delete your_version_name \
+  --model your_model_name \
+  --region your_region
 
+gcloud ai-platform models delete your_model_name \
+  --region your_region
+```
 
+Now you can manage the full model creation on Google, from [tuning][Tuning article] to [training][Training article] to deploying! Enjoy!
 
 
 [ML tutorials series]: https://towardsdatascience.com/tagged/google-ml-tutorials
